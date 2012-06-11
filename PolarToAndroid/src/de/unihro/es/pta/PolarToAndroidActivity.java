@@ -1,13 +1,16 @@
 package de.unihro.es.pta;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Set;
+import java.util.UUID;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 public class PolarToAndroidActivity extends Activity {
@@ -39,15 +42,53 @@ public class PolarToAndroidActivity extends Activity {
 
 			
 			Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+			BluetoothDevice device = null;
 			// If there are paired devices
 			if (pairedDevices.size() > 0) {
 			    // Loop through paired devices
-			    for (BluetoothDevice device : pairedDevices) {
+			    for (BluetoothDevice deviceTemp : pairedDevices) {
 			        // Add the name and address to an array adapter to show in a ListView
 			        //mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-			    	if(device.getName().equalsIgnoreCase("Polar iWL"))
+			    	if(deviceTemp.getName().equalsIgnoreCase("Polar iWL"))
+			    		device = deviceTemp;
 			    		out = "Polar gefunden!";
+			    	break;
 			    }
+			    BluetoothSocket socket = null;
+			    UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+			    try {
+					socket = device.createRfcommSocketToServiceRecord(MY_UUID);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			    try {
+					socket.connect();
+					out = "connected";
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			    
+			    try {
+					InputStream a = socket.getInputStream();
+					byte[] buffer = new byte[1024];
+					a.read(buffer);
+					out = String.valueOf(buffer);
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			    
+			    
+			    
+			    try {
+					socket.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			   
 			}
 			
 			vText.setText(out);
