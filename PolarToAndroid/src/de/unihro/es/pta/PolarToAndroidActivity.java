@@ -1,9 +1,13 @@
 package de.unihro.es.pta;
 
+import java.util.Set;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 public class PolarToAndroidActivity extends Activity {
@@ -32,7 +36,26 @@ public class PolarToAndroidActivity extends Activity {
 				startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
 			}
 
+			ArrayAdapter<String> mArrayAdapter = new ArrayAdapter<String>(this, vText.getId());
 			
+			Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+			// If there are paired devices
+			if (pairedDevices.size() > 0) {
+			    // Loop through paired devices
+			    for (BluetoothDevice device : pairedDevices) {
+			        // Add the name and address to an array adapter to show in a ListView
+			        mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+			    }
+			}
+			
+			String out = "";
+			
+			// Show the list of available Bluetooth devices
+			for(int i=0; i<mArrayAdapter.getCount(); i++){
+				out += mArrayAdapter.getItem(i);
+			}
+			
+			vText.setText(out);
 			
 			
 		}
