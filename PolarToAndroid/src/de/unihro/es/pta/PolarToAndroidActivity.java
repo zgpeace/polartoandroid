@@ -20,6 +20,7 @@ public class PolarToAndroidActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 
+		String out = "";
 		TextView vText = (TextView) findViewById(R.id.bla);
 
 		//	Init Bluetooth
@@ -36,7 +37,6 @@ public class PolarToAndroidActivity extends Activity {
 				startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
 			}
 
-			ArrayAdapter<String> mArrayAdapter = new ArrayAdapter<String>(this, vText.getId());
 			
 			Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
 			// If there are paired devices
@@ -44,18 +44,14 @@ public class PolarToAndroidActivity extends Activity {
 			    // Loop through paired devices
 			    for (BluetoothDevice device : pairedDevices) {
 			        // Add the name and address to an array adapter to show in a ListView
-			        mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+			        //mArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+			    	if(device.getName().equalsIgnoreCase("Polar iWL"))
+			    		out = "Polar gefunden!";
 			    }
 			}
 			
-			String out = "";
-			
-			// Show the list of available Bluetooth devices
-			for(int i=0; i<mArrayAdapter.getCount(); i++){
-				out += mArrayAdapter.getItem(i);
-			}
-			
 			vText.setText(out);
+			
 			
 			
 		}
