@@ -95,8 +95,10 @@ public class PolarToAndroidActivity extends Activity {
 
 						if (packetValid(buffer, i)) {
 							heartRate = buffer[i + 5] & 0xFF;
-							out = Integer.toString(heartRate);
-							//vText.setText(out);
+							if(heartRate != 0){
+								out = Integer.toString(heartRate);
+							}
+							 Toast.makeText(this, out, Toast.LENGTH_LONG).show();
 							break;
 						}
 					}
