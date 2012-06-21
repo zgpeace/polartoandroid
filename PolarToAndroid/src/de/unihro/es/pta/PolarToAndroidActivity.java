@@ -123,7 +123,7 @@ public class PolarToAndroidActivity extends Activity {
 							InputStream a = null;
 							byte[] buffer = new byte[16];
 							//						while(true){
-							for(int j = 0; j < 2000; j++){
+							for(int j = 0; j < 20; j++){
 								try {
 									a = socket.getInputStream();
 								} catch (IOException e2) {
@@ -187,7 +187,7 @@ public class PolarToAndroidActivity extends Activity {
 		protected void onPostExecute (String result){
 
 			vText.setText(out);
-			//new uiUpdate().execute(out);
+			new uiUpdate().execute(out);
 		}
 		
 
