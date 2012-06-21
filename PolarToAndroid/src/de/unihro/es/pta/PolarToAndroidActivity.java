@@ -8,8 +8,6 @@ import java.util.UUID;
 import org.achartengine.ChartFactory;
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
-import org.achartengine.renderer.DefaultRenderer;
-import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
 
@@ -231,11 +229,11 @@ public class PolarToAndroidActivity extends Activity {
 			renderer.setLegendTextSize(15);
 			renderer.setMargins(new int[] {20, 30, 15, 0});
 			renderer.setAxesColor(Color.YELLOW);
-			
+
 			XYSeriesRenderer xyRenderer = new XYSeriesRenderer();
-		    xyRenderer.setColor(Color.RED);
-		    renderer.addSeriesRenderer(xyRenderer);
-			
+			xyRenderer.setColor(Color.RED);
+			renderer.addSeriesRenderer(xyRenderer);
+
 
 			XYSeries series = new XYSeries("heartrate");
 			series.add(5, 5);
@@ -250,16 +248,6 @@ public class PolarToAndroidActivity extends Activity {
 
 			return ChartFactory.getLineChartIntent(context, categorySeries, renderer);
 		}
-
-		protected DefaultRenderer buildCategoryRenderer(int[] colors) {
-			DefaultRenderer renderer = new DefaultRenderer();
-			for (int color : colors) {
-				SimpleSeriesRenderer r = new SimpleSeriesRenderer();
-				r.setColor(color);
-				renderer.addSeriesRenderer(r);
-			}
-			return renderer;
-		}
 	}
-
 }
+
