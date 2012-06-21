@@ -6,9 +6,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.achartengine.ChartFactory;
-import org.achartengine.model.CategorySeries;
+import org.achartengine.model.XYMultipleSeriesDataset;
+import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.DefaultRenderer;
 import org.achartengine.renderer.SimpleSeriesRenderer;
+import org.achartengine.renderer.XYMultipleSeriesRenderer;
+import org.achartengine.renderer.XYSeriesRenderer;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -49,8 +52,8 @@ public class PolarToAndroidActivity extends Activity {
 		out = "";
 
 		//		//test eines diagramms!!!
-		//		Intent achartIntent = new AChartExample().execute(this);
-		//		startActivity(achartIntent);
+		Intent achartIntent = new AChartExample().execute(this);
+		startActivity(achartIntent);
 
 
 
@@ -218,15 +221,34 @@ public class PolarToAndroidActivity extends Activity {
 	public class AChartExample {
 
 		public Intent execute(Context context) {
-			int[] colors = new int[] { Color.RED, Color.YELLOW, Color.BLUE };
-			DefaultRenderer renderer = buildCategoryRenderer(colors);
+			//int[] colors = new int[] { Color.RED, Color.YELLOW, Color.BLUE };
+			XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
+			//GraphicalView HRChartView;
 
-			CategorySeries categorySeries = new CategorySeries("Vehicles Chart");
-			categorySeries.add("cars ", 30);
-			categorySeries.add("trucks", 20);
-			categorySeries.add("bikes ", 60);
+			renderer.setAxisTitleTextSize(16);
+			renderer.setChartTitleTextSize(20);
+			renderer.setLabelsTextSize(15);
+			renderer.setLegendTextSize(15);
+			renderer.setMargins(new int[] {20, 30, 15, 0});
+			renderer.setAxesColor(Color.YELLOW);
+			
+			XYSeriesRenderer xyRenderer = new XYSeriesRenderer();
+		    xyRenderer.setColor(Color.RED);
+		    renderer.addSeriesRenderer(xyRenderer);
+			
 
-			return ChartFactory.getPieChartIntent(context, categorySeries, renderer, "bla");
+			XYSeries series = new XYSeries("heartrate");
+			series.add(5, 5);
+			series.add(10, 10);
+			series.add(13, 15);
+
+
+			XYMultipleSeriesDataset categorySeries = new XYMultipleSeriesDataset();
+			categorySeries.addSeries(series);
+			//HRChartView = ChartFactory.getLineChartView(context, categorySeries, renderer);
+
+
+			return ChartFactory.getLineChartIntent(context, categorySeries, renderer);
 		}
 
 		protected DefaultRenderer buildCategoryRenderer(int[] colors) {
