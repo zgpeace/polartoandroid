@@ -30,6 +30,7 @@ public class PolarToAndroidActivity extends Activity {
 	String out; 
 	BluetoothDevice device = null;
 	BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+	InputStream a;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -40,12 +41,67 @@ public class PolarToAndroidActivity extends Activity {
 		vText = (TextView) findViewById(R.id.bla);
 		out = "";
 
+		//		Init Bluetooth
+		if (mBluetoothAdapter == null) {
+			vText.setText("Bluetooth is not supported.");
+		}else{
 
-		new uiUpdate().execute(out);
+			//			vText.setText("Everything's cool.");
+			//	Enable Bluetooth if neccessary
+			if (!mBluetoothAdapter.isEnabled()) {
+				Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+				startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+			}
 
+
+			Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+			// If there are paired devices
+			if (pairedDevices.size() > 0) {
+				// Loop through paired devices and find Polar iWL
+				for (BluetoothDevice deviceTemp : pairedDevices) {
+					if(deviceTemp.getName().equalsIgnoreCase("Polar iWL"))
+						device = deviceTemp;
+					//Toast.makeText(this, "Polar gefunden!", Toast.LENGTH_SHORT).show();
+					break;
+				}
+				socket = null;
+				try {
+					socket = device.createRfcommSocketToServiceRecord(Polar_UUID);
+					a = null;
+
+					try {
+						socket.connect();
+						//Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
+
+						try {
+							a = socket.getInputStream();
+						} catch (IOException e2) {
+							// TODO logging
+							e2.printStackTrace();
+						}
+
+						new uiUpdate().execute(out);
+
+					} catch (IOException e) {
+						// TODO logging
+						e.printStackTrace();
+						out = "Socket not connected.";
+					}
+
+				} catch (IOException e) {
+					// TODO logging
+					e.printStackTrace();
+					out = "Socket not created.";
+				}
+
+
+			}
+
+		}
+		vText.setText(out);
+		//Toast.makeText(this, out, Toast.LENGTH_LONG).show();
 
 	}
-
 
 
 	/**
@@ -82,103 +138,44 @@ public class PolarToAndroidActivity extends Activity {
 	}
 
 
+
 	private class uiUpdate extends AsyncTask<String, String, String>{
 
 		@Override
 		protected String doInBackground(String... params) {
-			// TODO Auto-generated method stub
+			int heartRate = 0;
 
-			//			Init Bluetooth
-			if (mBluetoothAdapter == null) {
-				vText.setText("Bluetooth is not supported.");
-			}else{
-
-				//			vText.setText("Everything's cool.");
-				//	Enable Bluetooth if neccessary
-				if (!mBluetoothAdapter.isEnabled()) {
-					Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-					startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-				}
+			byte[] buffer = new byte[16];
+			//						while(true){
+//			for(int j = 0; j < 20; j++){
 
 
-				Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-				// If there are paired devices
-				if (pairedDevices.size() > 0) {
-					// Loop through paired devices and find Polar iWL
-					for (BluetoothDevice deviceTemp : pairedDevices) {
-						if(deviceTemp.getName().equalsIgnoreCase("Polar iWL"))
-							device = deviceTemp;
-						//Toast.makeText(this, "Polar gefunden!", Toast.LENGTH_SHORT).show();
-						break;
-					}
-					socket = null;
-					try {
-						socket = device.createRfcommSocketToServiceRecord(Polar_UUID);
+				try {
+					a.read(buffer);
 
-						try {
-							socket.connect();
-							//Toast.makeText(this, "Connected", Toast.LENGTH_SHORT).show();
+					for (int i = 0; i < buffer.length - 8; i++) { 
 
-							int heartRate = 0;
-							InputStream a = null;
-							byte[] buffer = new byte[16];
-							//						while(true){
-							for(int j = 0; j < 20; j++){
-								try {
-									a = socket.getInputStream();
-								} catch (IOException e2) {
-									// TODO logging
-									e2.printStackTrace();
-								}
-
-								try {
-									a.read(buffer);
-								} catch (IOException e2) {
-									// TODO logging
-									e2.printStackTrace();
-								}
-
-								for (int i = 0; i < buffer.length - 8; i++) { 
-
-									if (packetValid(buffer, i)) {
-										heartRate = buffer[i + 5] & 0xFF;
-										if(heartRate != 0){
-											out = Integer.toString(heartRate);
-											//new uiUpdate().execute(out);
-											publishProgress(out);
-										}
-										//Toast.makeText(this, out, Toast.LENGTH_LONG).show();
-										//								vText.setText(out);
-										//return out;
-										//break;
-									}
-								}
+						if (packetValid(buffer, i)) {
+							heartRate = buffer[i + 5] & 0xFF;
+							if(heartRate != 0){
+								out = Integer.toString(heartRate);
+								//new uiUpdate().execute(out);
+								publishProgress(out);
 							}
-
-						} catch (IOException e) {
-							// TODO logging
-							e.printStackTrace();
-							return out = "Socket not connected.";
+							//Toast.makeText(this, out, Toast.LENGTH_LONG).show();
+							//								vText.setText(out);
+							//return out;
+							//break;
 						}
-
-
-
-
-					} catch (IOException e) {
-						// TODO logging
-						e.printStackTrace();
-						return out = "Socket not created.";
 					}
 
-
+				} catch (IOException e2) {
+					// TODO logging
+					e2.printStackTrace();
 				}
 
-			}
-			//vText.setText(out);
-			//Toast.makeText(this, out, Toast.LENGTH_LONG).show();
 
-
-
+//			}
 			return out;
 		}
 
@@ -186,10 +183,11 @@ public class PolarToAndroidActivity extends Activity {
 		@Override
 		protected void onPostExecute (String result){
 
-			vText.setText(out);
+			//vText.setText(out);
+			//if (!out.equals("Socket not connected.") && !out.equals("Socket not created."))
 			new uiUpdate().execute(out);
 		}
-		
+
 
 		@Override
 		protected void onProgressUpdate(String... values) {

@@ -8,6 +8,8 @@
         android:id="@+id/bla"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hello" />
+        android:layout_weight="0.30"
+        android:text="@string/hello"
+        android:textSize="20sp" />
 
 </LinearLayout>
