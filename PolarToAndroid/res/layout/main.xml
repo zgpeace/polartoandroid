@@ -8,7 +8,7 @@
         android:id="@+id/bla"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.30"
+        android:layout_weight="0.03"
         android:text="@string/hello"
         android:textSize="20sp" />
 

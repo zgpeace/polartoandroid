@@ -5,11 +5,18 @@ import java.io.InputStream;
 import java.util.Set;
 import java.util.UUID;
 
+import org.achartengine.ChartFactory;
+import org.achartengine.model.CategorySeries;
+import org.achartengine.renderer.DefaultRenderer;
+import org.achartengine.renderer.SimpleSeriesRenderer;
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -40,6 +47,13 @@ public class PolarToAndroidActivity extends Activity {
 
 		vText = (TextView) findViewById(R.id.bla);
 		out = "";
+
+		//		//test eines diagramms!!!
+		//		Intent achartIntent = new AChartExample().execute(this);
+		//		startActivity(achartIntent);
+
+
+
 
 		//		Init Bluetooth
 		if (mBluetoothAdapter == null) {
@@ -147,35 +161,35 @@ public class PolarToAndroidActivity extends Activity {
 
 			byte[] buffer = new byte[16];
 			//						while(true){
-//			for(int j = 0; j < 20; j++){
+			//			for(int j = 0; j < 20; j++){
 
 
-				try {
-					a.read(buffer);
+			try {
+				a.read(buffer);
 
-					for (int i = 0; i < buffer.length - 8; i++) { 
+				for (int i = 0; i < buffer.length - 8; i++) { 
 
-						if (packetValid(buffer, i)) {
-							heartRate = buffer[i + 5] & 0xFF;
-							if(heartRate != 0){
-								out = Integer.toString(heartRate);
-								//new uiUpdate().execute(out);
-								publishProgress(out);
-							}
-							//Toast.makeText(this, out, Toast.LENGTH_LONG).show();
-							//								vText.setText(out);
-							//return out;
-							//break;
+					if (packetValid(buffer, i)) {
+						heartRate = buffer[i + 5] & 0xFF;
+						if(heartRate != 0){
+							out = Integer.toString(heartRate);
+							//new uiUpdate().execute(out);
+							publishProgress(out);
 						}
+						//Toast.makeText(this, out, Toast.LENGTH_LONG).show();
+						//								vText.setText(out);
+						//return out;
+						//break;
 					}
-
-				} catch (IOException e2) {
-					// TODO logging
-					e2.printStackTrace();
 				}
 
+			} catch (IOException e2) {
+				// TODO logging
+				e2.printStackTrace();
+			}
 
-//			}
+
+			//			}
 			return out;
 		}
 
@@ -199,6 +213,31 @@ public class PolarToAndroidActivity extends Activity {
 
 
 
+	}
+
+	public class AChartExample {
+
+		public Intent execute(Context context) {
+			int[] colors = new int[] { Color.RED, Color.YELLOW, Color.BLUE };
+			DefaultRenderer renderer = buildCategoryRenderer(colors);
+
+			CategorySeries categorySeries = new CategorySeries("Vehicles Chart");
+			categorySeries.add("cars ", 30);
+			categorySeries.add("trucks", 20);
+			categorySeries.add("bikes ", 60);
+
+			return ChartFactory.getPieChartIntent(context, categorySeries, renderer, "bla");
+		}
+
+		protected DefaultRenderer buildCategoryRenderer(int[] colors) {
+			DefaultRenderer renderer = new DefaultRenderer();
+			for (int color : colors) {
+				SimpleSeriesRenderer r = new SimpleSeriesRenderer();
+				r.setColor(color);
+				renderer.addSeriesRenderer(r);
+			}
+			return renderer;
+		}
 	}
 
 }
