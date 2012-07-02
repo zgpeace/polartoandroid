@@ -3,5 +3,6 @@
 
     <string name="hello">Hello World, PolarToAndroidActivity!</string>
     <string name="app_name">PolarToAndroid</string>
+    <string name="Grafik">Zeichne Graph</string>
 
 </resources>

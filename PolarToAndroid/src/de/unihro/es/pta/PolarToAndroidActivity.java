@@ -5,22 +5,17 @@ import java.io.InputStream;
 import java.util.Set;
 import java.util.UUID;
 
-import org.achartengine.ChartFactory;
-import org.achartengine.model.XYMultipleSeriesDataset;
-import org.achartengine.model.XYSeries;
-import org.achartengine.renderer.XYMultipleSeriesRenderer;
-import org.achartengine.renderer.XYSeriesRenderer;
-
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 /**
@@ -32,13 +27,17 @@ public class PolarToAndroidActivity extends Activity {
 	private static final int REQUEST_ENABLE_BT = 1; 
 	private static final UUID Polar_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-	BluetoothSocket socket;
-	TextView vText; 
+	TextView vText;
+	Button gButton;
+	Context context1;
+	BluetoothSocket socket; 
 	Handler handler;
 	String out; 
 	BluetoothDevice device = null;
 	BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 	InputStream a;
+	Chart chart = new Chart();
+	int term = 0;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -47,11 +46,18 @@ public class PolarToAndroidActivity extends Activity {
 		setContentView(R.layout.main);
 
 		vText = (TextView) findViewById(R.id.bla);
+		gButton = (Button) findViewById(R.id.button1);
+		context1 = this;
 		out = "";
 
-		//		//test eines diagramms!!!
-		Intent achartIntent = new AChartExample().execute(this);
-		startActivity(achartIntent);
+
+
+		gButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				Intent achartIntent = new Chart().execute(context1,chart);
+				startActivity(achartIntent);
+			}});
+
 
 
 
@@ -161,12 +167,10 @@ public class PolarToAndroidActivity extends Activity {
 			int heartRate = 0;
 
 			byte[] buffer = new byte[16];
-			//						while(true){
-			//			for(int j = 0; j < 20; j++){
-
 
 			try {
 				a.read(buffer);
+
 
 				for (int i = 0; i < buffer.length - 8; i++) { 
 
@@ -174,13 +178,14 @@ public class PolarToAndroidActivity extends Activity {
 						heartRate = buffer[i + 5] & 0xFF;
 						if(heartRate != 0){
 							out = Integer.toString(heartRate);
-							//new uiUpdate().execute(out);
+							publishProgress(out);
+							chart.addValues(term,heartRate);
+							term++;
+						}
+						else{
+							out = "Initializing...";
 							publishProgress(out);
 						}
-						//Toast.makeText(this, out, Toast.LENGTH_LONG).show();
-						//								vText.setText(out);
-						//return out;
-						//break;
 					}
 				}
 
@@ -216,38 +221,5 @@ public class PolarToAndroidActivity extends Activity {
 
 	}
 
-	public class AChartExample {
-
-		public Intent execute(Context context) {
-			//int[] colors = new int[] { Color.RED, Color.YELLOW, Color.BLUE };
-			XYMultipleSeriesRenderer renderer = new XYMultipleSeriesRenderer();
-			//GraphicalView HRChartView;
-
-			renderer.setAxisTitleTextSize(16);
-			renderer.setChartTitleTextSize(20);
-			renderer.setLabelsTextSize(15);
-			renderer.setLegendTextSize(15);
-			renderer.setMargins(new int[] {20, 30, 15, 0});
-			renderer.setAxesColor(Color.YELLOW);
-
-			XYSeriesRenderer xyRenderer = new XYSeriesRenderer();
-			xyRenderer.setColor(Color.RED);
-			renderer.addSeriesRenderer(xyRenderer);
-
-
-			XYSeries series = new XYSeries("heartrate");
-			series.add(5, 5);
-			series.add(10, 10);
-			series.add(13, 15);
-
-
-			XYMultipleSeriesDataset categorySeries = new XYMultipleSeriesDataset();
-			categorySeries.addSeries(series);
-			//HRChartView = ChartFactory.getLineChartView(context, categorySeries, renderer);
-
-
-			return ChartFactory.getLineChartIntent(context, categorySeries, renderer);
-		}
-	}
 }
 
